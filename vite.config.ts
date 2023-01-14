@@ -12,7 +12,7 @@ return  defineConfig({
   plugins: [react()],
   server: {
     hmr: {
-       host: "priceit.zamanien.com",
+       host: ".zamanien.com",
        //port: 8080,
        protocol: "wss",
     },

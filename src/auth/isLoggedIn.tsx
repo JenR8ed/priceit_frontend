@@ -8,7 +8,7 @@ interface Element{
 const useAuth = (data: any, cookie: { logged_in?: any }) => {
   if (!data) {
     return false;
-  } else if (data.sub.role === "user" && cookie.logged_in) {
+  } else if (data.sub.role === "user") {
     return true;
   }
 };

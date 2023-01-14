@@ -29,6 +29,7 @@ class UserAuthService {
   }
 
   LogIn(user: UserLogin) {
+    httpAuth.defaults.withCredentials = true
     return httpAuth.post("/auth/login", {
       email: user.email,
       password: user.password,
