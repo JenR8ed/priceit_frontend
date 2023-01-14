@@ -1,3 +1,5 @@
+import { ProductData } from "./product"
+
 export interface User {
     id:string,
     userName: string,
@@ -9,4 +11,6 @@ export interface User {
     role:string
     createdAt: string,
     updatedAt: string,
+    searches:string[],
+    items:ProductData[]
   }

@@ -2,11 +2,19 @@ import * as yup from "yup";
 import { FormValues } from "./FormValues";
 
 const validationSchemaRegister = yup.object({
-  name: yup
+  userName: yup
     //@ts-ignore
-    .string("Enter your name")
+    .string("Enter your username")
     .min(3, "Name should be of minimum 3 characters length")
-    .required("Name is required"),
+    .required("Username is required"),
+  firstName: yup
+    //@ts-ignore
+    .string("Enter your firstname")
+    .required("Firstname is required"),
+  lastName: yup
+    //@ts-ignore
+    .string("Enter your lastname")
+    .required("Lastname is required"),
   email: yup
     //@ts-ignore
     .string("Enter your email")

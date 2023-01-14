@@ -12,8 +12,10 @@ type UserLogin = Omit<
   | "role"
   | "createdAt"
   | "updatedAt"
+  | 'searches' 
+  | 'items'
 >;
-type UserRgister = Omit<User, "id" | "role" | "createdAt" | "updatedAt">;
+type UserRgister = Omit<User, "id" | "role" | "createdAt" | "updatedAt" | 'searches' | 'items'>;
 class UserAuthService {
   Register(user: UserRgister) {
     return httpAuth.post("/auth/register", {
@@ -36,20 +38,27 @@ class UserAuthService {
   GetUser(userId: string) {
     return httpAuth.get("/users/me", { data: { id: userId } });
   }
-  
-  AddUserItems(userId: string, item: ProductData | undefined) {
-    return httpAuth.put(`/users/me/${userId}`, {
+  GetUserItems(userId: string) {
+    return httpAuth.get(`/users/me/items/${userId}`);
+  }
+  AddUserItem(userId: string, item: ProductData | undefined) {
+    return httpAuth.put(`/users/me/addItem/${userId}`, {
       item:item
     });
   }
-  DeleteUserItems(userId: string, itemId:string) {
-    return httpAuth.put(`/users/me/${userId}`, {
+  DeleteUserItem(userId: string, itemId:string) {
+    return httpAuth.put(`/users/me/deleteItem/${userId}`, {
       itemId:itemId
     });
   }
 
   AddUserSearches(userId: string, searchWord: string) {
-    return httpAuth.put(`/users/me/${userId}`, {
+    return httpAuth.put(`/users/me/addSearch/${userId}`, {
+      searchWord:searchWord
+    });
+  }
+  DeleteUserSearches(userId: string, searchWord: string) {
+    return httpAuth.put(`/users/me/deleteSearch/${userId}`, {
       searchWord:searchWord
     });
   }

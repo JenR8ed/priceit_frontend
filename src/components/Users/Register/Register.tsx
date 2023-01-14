@@ -9,7 +9,7 @@ export const Register = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  type UserRgister = Omit<User, 'id' | 'role' | 'createdAt' | 'updatedAt' >
+  type UserRgister = Omit<User, 'id' | 'role' | 'createdAt' | 'updatedAt'| 'searches' | 'items' >
   const formik = useFormik({
     initialValues: {
       userName: "",
@@ -82,7 +82,7 @@ export const Register = () => {
         <Stack spacing={2} sx={{ maxWidth: 600 }}>
           <Snackbar
             open={openError}
-            autoHideDuration={5000}
+            autoHideDuration={3000}
             anchorOrigin={{ vertical: "top", horizontal: "center" }}
             onClose={handleClose}
             sx={{ width: "100%" }}
@@ -93,7 +93,7 @@ export const Register = () => {
           </Snackbar>
           <Snackbar
             open={openSuccess}
-            autoHideDuration={5000}
+            autoHideDuration={3000}
             anchorOrigin={{ vertical: "top", horizontal: "center" }}
             onClose={handleCloseSuccess}
           >
@@ -106,8 +106,9 @@ export const Register = () => {
         <form onSubmit={formik.handleSubmit}>
           <TextField
             fullWidth
-            id="name"
-            label="username"
+            id="userName"
+            name="userName"
+            label="Username"
             type="text"
             margin="normal"
             value={formik.values.userName}
@@ -118,7 +119,8 @@ export const Register = () => {
            <TextField
             fullWidth
             id="firstName"
-            label="firstName"
+            name="firstName"
+            label="Firstname"
             type="text"
             margin="normal"
             value={formik.values.firstName}
@@ -129,7 +131,8 @@ export const Register = () => {
             <TextField
             fullWidth
             id="lastName"
-            label="lastName"
+            name="lastName"
+            label="Lastname"
             type="text"
             margin="normal"
             value={formik.values.lastName}
@@ -179,7 +182,7 @@ export const Register = () => {
             autoComplete="off"
           />
           <Stack spacing={2} sx={{ maxWidth: 400, m:"auto" }}>
-            <Button color="primary" variant="contained" fullWidth type="submit">
+            <Button color="primary" variant="contained" fullWidth type="submit" >
               Register
             </Button>
           </Stack>

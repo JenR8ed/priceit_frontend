@@ -151,3 +151,13 @@ button:focus-visible {
   width: 100%;
   max-width: 50%;
 }
+.chips_container {
+  display: flex;
+  padding: 20px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+
+}

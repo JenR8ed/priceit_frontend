@@ -16,6 +16,9 @@ import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
+import UserAuthService from "../../services/UserAuthService";
+import { useUser } from "../../auth/useUser";
+import { useCookies } from "react-cookie";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -64,6 +67,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 export function ProductsWrapper(): JSX.Element {
   const limit: number = 20;
+  let offset: number = 0;
+  const currentOffset: number = parseInt(sessionStorage.getItem("currentOffset") || "")
+  let newOffset = currentOffset;
+  sessionStorage.setItem("currentOffset", JSON.stringify(offset));
   const [searchWordPagination, setSearchhWordPagination] = useState<string>("");
   const [hiddenFacebookTitle, setHiddenFacebookTitle] = useState<boolean>(true);
   const [hiddenEbayTitle, setHiddenEbayTitle] = useState<boolean>(true);
@@ -72,7 +79,7 @@ export function ProductsWrapper(): JSX.Element {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hiddenError, setHiddenError] = useState<boolean>(true);
   const [ebayProducts, setEbayProducts] = useState<ProductData[] | undefined>();
-
+  const data = useUser();
   const [facebookProducts, setFacebookProducts] = useState<
     ProductData[] | undefined
   >();
@@ -82,7 +89,79 @@ export function ProductsWrapper(): JSX.Element {
   const [ebayError, setEbayError] = useState<string>("");
   const [facebookError, setFacebookError] = useState<string>("");
   const [googleError, setGoogleError] = useState<string>("");
+  const [cookie] = useCookies(["logged_in"]);
 
+  const getFaceBookData = async (searchWord: string, offset: number) => {
+    try {
+      const responseFacebook =
+        await ProductDataService.findFacebookProductsBySearchWord(
+          searchWord,
+          offset
+        );
+      console.log("facebook", responseFacebook);
+      if (responseFacebook.status === 200) {
+        setFacebookProducts(responseFacebook.data.facebookData.itemList);
+        setHiddenFacebookTitle(false);
+        setHiddenError(true);
+      }
+    } catch (error: any) {
+      console.log(error.response.data);
+      setHiddenFacebookTitle(false);
+      setFacebookProducts([]);
+      setFacebookError(error.response.data.error);
+    }
+  };
+
+  const getEbayData = async (
+    searchWord: string,
+    limit: number,
+    offset: number
+  ) => {
+    try {
+      const responseEbay =
+        await ProductDataService.findEbayProductsBySearchWord(
+          searchWord,
+          limit,
+          offset
+        );
+      if (responseEbay.status === 200) {
+        // console.log(response.data.ebayData)
+        setEbayProducts(responseEbay.data.ebayData.itemList);
+        setHiddenPagination(false);
+        setHiddenEbayTitle(false);
+        setHiddenError(true);
+      }
+    } catch (error: any) {
+      console.log(error.response.data);
+      setEbayError(error.response.data.error);
+      setHiddenError(false);
+      setHiddenEbayTitle(false);
+      setEbayProducts([]);
+      setHiddenPagination(true);
+    }
+  };
+  const getGoogleData = async (searchWord: string, offset: number) => {
+    try {
+      const responseGoogle =
+        await ProductDataService.findGoogleProductsBySearchWord(
+          searchWord,
+          offset
+        );
+      if (responseGoogle.status === 200) {
+        setGoogleProducts(responseGoogle.data.googleData.itemList);
+        setHiddenPagination(false);
+        setHiddenGoogleTitle(false);
+        setHiddenError(true);
+      }
+    } catch (error: any) {
+      console.log(error.response.data);
+      setGoogleError(error.response.data.error);
+      setHiddenError(false);
+      setHiddenGoogleTitle(false);
+      setGoogleProducts([]);
+      setHiddenPagination(true);
+    }
+  };
   const formik = useFormik({
     initialValues: {
       searchWord: "",
@@ -90,76 +169,34 @@ export function ProductsWrapper(): JSX.Element {
     validationSchema: searchWordValidationSchema,
     onSubmit: async (values, { resetForm }) => {
       const searchWord: string = values.searchWord;
+      sessionStorage.setItem("search", searchWord);
       setSearchhWordPagination(values.searchWord);
       setCurrentPage(1);
-      let offset: number = 0;
 
-      try {
-        const responseFacebook =
-          await ProductDataService.findFacebookProductsBySearchWord(
-            searchWord,
-            offset
+      if (cookie.logged_in === 'true' && searchWord !== null) {
+        try {
+          await UserAuthService.AddUserSearches(data.sub._id, searchWord).then(
+            (response) => {
+              console.log(response);
+              if (response.status === 200) {
+                console.log(response);
+              }
+            }
           );
-        console.log("facebook", responseFacebook);
-        if (responseFacebook.status === 200) {
-          setFacebookProducts(responseFacebook.data.facebookData.itemList);
-          setHiddenFacebookTitle(false);
-          setHiddenError(true);
+        } catch (error) {
+          console.log(error);
         }
-      } catch (error: any) {
-        console.log(error.response.data);
-        setHiddenFacebookTitle(false)
-        setFacebookProducts([])
-        setFacebookError(error.response.data.error)
       }
-      try {
-        const responseEbay =
-          await ProductDataService.findEbayProductsBySearchWord(
-            searchWord,
-            limit,
-            offset
-          );
-        if (responseEbay.status === 200) {
-          // console.log(response.data.ebayData)
-          setEbayProducts(responseEbay.data.ebayData.itemList);
-          setHiddenPagination(false);
-          setHiddenEbayTitle(false);
-          setHiddenError(true);
-        }
-      } catch (error: any) {
-        console.log(error.response.data);
-        setEbayError(error.response.data.error);
-        setHiddenError(false);
-        setHiddenEbayTitle(false);
-        setEbayProducts([]);
-        setHiddenPagination(true);
-      }
-      // try {
-      //   const responseGoogle =
-      //     await ProductDataService.findGoogleProductsBySearchWord(
-      //       searchWord,
-      //       offset
-      //     );
-      //   if (responseGoogle.status === 200) {
-      //     // console.log(response.data.ebayData)
-      //     setGoogleProducts(responseGoogle.data.googleData.itemList);
-      //     setHiddenPagination(false);
-      //     setHiddenGoogleTitle(false);
-      //     setHiddenError(true);
-      //   }
-      // } catch (error: any) {
-      //   console.log(error.response.data);
-      //   setGoogleError(error.response.data.error);
-      //   setHiddenError(false);
-      //   setHiddenGoogleTitle(false);
-      //   setGoogleProducts([]);
-      //   setHiddenPagination(true);
-      // }
-      resetForm({
-        values: {
-          searchWord: "",
-        },
-      });
+
+      getFaceBookData(searchWord, offset);
+      getEbayData(searchWord, limit, offset);
+      // getGoogleData(searchWord, offset);
+
+      // resetForm({
+      //   values: {
+      //     searchWord: "",
+      //   },
+      // });
     },
   });
 
@@ -172,29 +209,22 @@ export function ProductsWrapper(): JSX.Element {
       setSearchhWordPagination(word);
     }
   }
+
   // useEffect(() => {
-  //   const data: string | null = window.sessionStorage.getItem(
-  //     "itemList_currentPage"
+  //   const searchWord: string | null = sessionStorage.getItem(
+  //     "search"
   //   ) as string;
-  //   if (!data) {
-  //     setFacebookProducts([]);
-  //     setEbayProducts([]);
-  //     setGoogleProducts([]);
-  //     setHiddenPagination(false);
+    
+    
+  //   if(searchWord !== null){
+  //     getFaceBookData(searchWord, newOffset)
+  //     getEbayData(searchWord, limit, newOffset)
+  //     // getGoogleData(searchWord, offset)
   //   }
-  //   if (data !== null) {
-  //     let pageData: {
-  //       facebookData: [];
-  //       ebayData: [];
-  //       googleData: [];
-  //       offset: string;
-  //     } = JSON.parse(data);
-  //     setFacebookProducts(pageData.facebookData);
-  //     setEbayProducts(pageData.ebayData);
-  //     setGoogleProducts(pageData.googleData);
-  //     setHiddenPagination(true);
-  //   }
+
+    
   // }, []);
+
   const handleKeyDown = (
     event: React.KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -209,16 +239,20 @@ export function ProductsWrapper(): JSX.Element {
   ) => {
     setCurrentPage(page);
     let offset: number = (page - 1) * limit;
-    console.log("offset", offset);
+    sessionStorage.setItem("currentOffset", JSON.stringify(offset));
+
     try {
       ProductDataService.findEbayProductsBySearchWord(
         searchWordPagination,
         limit,
         offset
       ).then((response) => {
-        console.log(response);
-        setFacebookProducts([]);
-        setHiddenFacebookTitle(true)
+        if (page === 1) {
+          setHiddenFacebookTitle(false);
+        } else {
+          setHiddenFacebookTitle(true);
+        }
+
         setEbayProducts(response.data.ebayData.itemList);
         // setGoogleProducts(response.data.googleData);
       });
@@ -268,14 +302,15 @@ export function ProductsWrapper(): JSX.Element {
             </div>
           </AppBar>
         </Box>
-
-        <Product
-          title="Facebook Products"
-          hiddenTitle={hiddenFacebookTitle}
-          productList={facebookProducts}
-          error={facebookError}
-          hiddenError={hiddenError}
-        ></Product>
+        <div hidden={hiddenFacebookTitle}>
+          <Product
+            title="Facebook Products"
+            hiddenTitle={hiddenFacebookTitle}
+            productList={facebookProducts}
+            error={facebookError}
+            hiddenError={hiddenError}
+          ></Product>
+        </div>
 
         <Product
           title={"Ebay Products"}
@@ -300,9 +335,16 @@ export function ProductsWrapper(): JSX.Element {
           page={currentPage}
           onChange={handlePageChange}
           hidden={hiddenPagination}
-          sx={{zIndex: 1100,position: "fixed", bottom:30,width:'100%', textAlign:'center', left:0, justifyContent:"center"}}
+          sx={{
+            zIndex: 1100,
+            position: "fixed",
+            bottom: 30,
+            width: "100%",
+            textAlign: "center",
+            left: 0,
+            justifyContent: "center",
+          }}
         />
-
       </div>
     </Fragment>
   );

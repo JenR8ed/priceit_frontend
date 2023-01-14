@@ -25,7 +25,7 @@ export const Login = () => {
     
   }
 
-  type UserLogin = Omit<User, 'id' | 'userName' | 'firstName' | 'lastName' | 'passwordConfirm' | 'role' | 'createdAt' | 'updatedAt' >
+  type UserLogin = Omit<User, 'id' | 'userName' | 'firstName' | 'lastName' | 'passwordConfirm' | 'role' | 'createdAt' | 'updatedAt'| 'searches' | 'items' >
   const formik = useFormik({
     initialValues: {
       email: "",
@@ -94,7 +94,7 @@ export const Login = () => {
             autoHideDuration={5000}
             anchorOrigin={{ vertical: "top", horizontal: "center" }}
             onClose={handleClose}
-            sx={{ width: "100%" }}
+            sx={{ width: "20%" }}
           >
             <Alert severity="error" sx={{ width: "100%" }}>
               {errorMessage}

@@ -14,131 +14,15 @@ import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useFormik } from "formik";
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { searchWordValidationSchema } from "../../validationSchema";
-import ProductDataService from "../../services/ProductDataService";
-import { ProductData } from "../../types/product";
-import Product from "../Products/Product";
-import { FavoritesDrawer } from "../Drawer/FavoritesDrawer";
 import Tooltip from "@mui/material/Tooltip";
-import LoggedIn from "../../auth/LoggedIn";
 import HomeIcon from "@mui/icons-material/Home";
 import SpringModal from "../Modal/SpringModal";
-const Search = styled("div")(({ theme }) => ({
-  position: "relative",
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  "&:hover": {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 10,
-  marginRight: 10,
-  width: "100%",
-  [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(40),
-    width: "auto",
-  },
-}));
-
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: "100%",
-  position: "absolute",
-  pointerEvents: "none",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "left",
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: "inherit",
-  "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingRight: `calc(1em + ${theme.spacing(4)})`,
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      width: "12ch",
-      "&:focus": {
-        width: "50ch",
-      },
-    },
-  },
-}));
-
+import { Logout } from "../../components/Users/Logout/Logout";
+import { useUser } from "../../auth/useUser";
+import { useCookies } from "react-cookie";
 export function SearchAppBar() {
   const [auth, setAuth] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const limit: number = 20;
-  const [searchWordPagination, setSearchhWordPagination] = useState("");
-  const [hiddenFacebookTitle, setHiddenFacebookTitle] = useState<boolean>(true);
-  const [hiddenEbayTitle, setHiddenEbayTitle] = useState<boolean>(true);
-  const [hiddenGoogleTitle, setHiddenGoogleTitle] = useState<boolean>(true);
-  const [hiddenPagination, setHiddenPagination] = useState(true);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-
-  const [ebayProducts, setEbayProducts] = useState<ProductData[] | undefined>();
-
-  const [facebookProducts, setFacebookProducts] = useState<
-    ProductData[] | undefined
-  >();
-  const [googleProducts, setGoogleProducts] = useState<
-    ProductData[] | undefined
-  >();
-
-  const formik = useFormik({
-    initialValues: {
-      searchWord: "",
-    },
-    validationSchema: searchWordValidationSchema,
-    onSubmit: async (values, { resetForm, setSubmitting }) => {
-      const searchWord: string = values.searchWord;
-      setSearchhWordPagination(values.searchWord);
-      setCurrentPage(1);
-      try {
-        let offset: number = 0;
-
-        const response = await ProductDataService.findBySearchWord(
-          searchWord,
-          limit,
-          offset
-        );
-        console.log(response);
-        if (response.status === 200) {
-          setEbayProducts(response.data.ebayData);
-          setFacebookProducts(response.data.facebookData);
-          setGoogleProducts(response.data.googleData);
-          setHiddenPagination(false);
-          setHiddenFacebookTitle(false);
-          setHiddenEbayTitle(false);
-          setHiddenGoogleTitle(false);
-        }
-      } catch (error: any) {
-        console.log(error);
-      }
-      setSubmitting(false);
-      resetForm({
-        values: {
-          searchWord: "",
-        },
-      });
-    },
-  });
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(event);
-    setAuth(event.target.checked);
-  };
-  const handleKeyDown = (
-    event: React.KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    //@ts-ignore
-    if (event.key === "Enter")
-      //@ts-ignore
-      formik.handleChange;
-  };
-
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -156,31 +40,20 @@ export function SearchAppBar() {
     setAnchorEl(null);
     gotoProfile();
   };
-  const handlePageChange = (
-    event: React.ChangeEvent<unknown>,
-    page: number
-  ) => {
-    setCurrentPage(page);
-    let offset: number = (page - 1) * limit;
-    console.log("offset", offset);
-    try {
-      ProductDataService.findBySearchWord(
-        searchWordPagination,
-        limit,
-        offset
-      ).then((response) => {
-        console.log(response);
-        if (response.data.facebookData.length == 0) {
-          setHiddenFacebookTitle(true);
-        }
-        setFacebookProducts(response.data.facebookData);
-        setEbayProducts(response.data.ebayData);
-        setGoogleProducts(response.data.googleData);
-      });
-    } catch (error) {
-      console.log(error);
+  const useAuth = (data: any, cookie: { logged_in?: any }) => {
+    if (!data) {
+      return false;
+    } else if (data.sub.role === "user" && cookie.logged_in === 'true') {
+      return true;
     }
   };
+  function LoggedIn() {
+    const [cookie] = useCookies(["logged_in"]);
+    const data = useUser();
+    const auth = useAuth(data, cookie);
+    
+    return auth ? <Logout /> : <SpringModal  />;
+  }
   return (
     <>
       <Box sx={{ flexGrow: 1 }} className="navbar">
@@ -198,26 +71,6 @@ export function SearchAppBar() {
                 <HomeIcon />
               </IconButton>
             </Tooltip>
-            {/* <Search>
-              <SearchIconWrapper>
-                <SearchIcon />
-              </SearchIconWrapper>
-              <form onSubmit={formik.handleSubmit}>
-                <StyledInputBase
-                  id="searchWord"
-                  placeholder="Search…"
-                  inputProps={{ "aria-label": "search" }}
-                  onChange={formik.handleChange}
-                  //@ts-ignore
-                  onKeyDown={handleKeyDown}
-                  value={formik.values.searchWord}
-                  error={
-                    formik.touched.searchWord &&
-                    Boolean(formik.errors.searchWord)
-                  }
-                />
-              </form>
-            </Search> */}
 
             <Typography
               variant="h6"
@@ -227,8 +80,8 @@ export function SearchAppBar() {
             >
               Welcome
             </Typography>
-
             <LoggedIn />
+            
             {auth && (
               <div>
                 <Tooltip title="Profile">
@@ -265,35 +118,6 @@ export function SearchAppBar() {
           </Toolbar>
         </AppBar>
       </Box>
-      {/* <>
-        <div className="container">
-       
-          <Product
-            title="Facebook Products"
-            hiddenTitle={hiddenFacebookTitle}
-            productList={facebookProducts || []}
-          ></Product>
-          <Product
-            title="Ebay Products"
-            hiddenTitle={hiddenEbayTitle}
-            productList={ebayProducts || []}
-          ></Product>
-          <Product
-            title="Google Products"
-            hiddenTitle={hiddenGoogleTitle}
-            productList={googleProducts || []}
-          ></Product>
-        </div>
-        <div className="pagination">
-          <Pagination
-            count={10}
-            color="primary"
-            page={currentPage}
-            onChange={handlePageChange}
-            hidden={hiddenPagination}
-          />
-        </div>
-      </> */}
     </>
   );
 }
