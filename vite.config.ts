@@ -11,9 +11,12 @@ export default ({ mode }) => {
 return  defineConfig({
   plugins: [react()],
   server: {
-    watch: {
-      usePolling: true,
+    hmr: {
+       host: "priceit.zamanien.com",
+       //port: 8080,
+       protocol: "wss",
     },
+    
     host: true, // Here
     // strictPort: true,
     port: process.env.PORT as unknown as number
