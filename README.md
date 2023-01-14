@@ -1,8 +1,31 @@
+<a name="readme-top"></a>
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#About PriceIt | Frontend">About PriceIt | Frontend</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
 ## About PriceIt | Frontend
-Please refer to [PriceIT Backend](https://github.com/aaronalayo/priceit-backend) for more information about the project.
+This Repo contains the Frontend of our BA project - PriceIt.
 
-This Repo contains the frontend of our BA project - PriceIt.
-
+Please refer to [PriceIt Search API](https://github.com/aaronalayo/priceit-backend) for general information about the project.
 
 ### Built With
 
@@ -14,7 +37,7 @@ This project is built with the following tools
 * [![Vite][ViteLogo]][Vite-url]
 
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">[<a href="#readme-top">back to top</a>]</p>
 
 
 ## Getting Started
@@ -23,49 +46,50 @@ Use the guide below to run the application locally. Remember to also setup the A
 
 Following criterias are needed:
 - Docker installed
-- [PriceIT | AUTH API](https://github.com/aaronalayo/priceit_auth)
-- [PriceIT | SEARCH API](https://github.com/aaronalayo/priceit-backend)
+* [![PriceIt-auth][PriceIt-auth-logo]][PriceIt-auth-url]
+* [![PriceIt-search][PriceIt-search-logo]][PriceIt-search-url]
 
 ### Installation
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/aaronalayo/priceit_frontend.git
    ``` 
-2. Fill out the .env template
+2. Create a '.env' in the root dir of the project
     ```variables
     LOCAL_SERVER_PORT=
     DOCKER_SERVER_PORT=
     VITE_SEARCH_BASE_URL=
     VITE_AUTH_BASE_URL=
+    NODE_ENV=
     ```
  
 3. Spin up the container
    ```sh
-   $ docker-compose up
+   $ docker-compose up -d
    ```
 4. Access the site
    ```
     http://localhost:<DOCKER_SERVER_PORT>
    ```
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">[<a href="#readme-top">back to top</a>]</p>
 
 
 ## Project Services / Repositories
 
 Project Links: 
-- [PriceIT | AUTH API](https://github.com/aaronalayo/priceit_auth)
-- [PriceIT | SEARCH API](https://github.com/aaronalayo/priceit-backend)
+* [![PriceIt-auth][PriceIt-auth-logo]][PriceIt-auth-url]
+* [![PriceIt-search][PriceIt-search-logo]][PriceIt-search-url]
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">[<a href="#readme-top">back to top</a>]</p>
 
 <!-- LICENSE -->
 ## License
 
 Distributed under the MIT License. See `LICENSE.txt` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<p align="right">[<a href="#readme-top">back to top</a>]</p>
 
 
 
@@ -84,3 +108,10 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 [Material-url]: https://mui.com/material-ui/
 [ViteLogo]: https://img.shields.io/badge/Vite-Frontend%20Tooling-green
 [Vite-url]: https://vitejs.dev/
+
+[PriceIt-auth-logo]: https://img.shields.io/badge/PriceIt-Auth%20API-green
+[PriceIt-auth-url]: https://github.com/aaronalayo/priceit_auth
+[PriceIt-search-logo]: https://img.shields.io/badge/PriceIt-Search%20API-orange
+[PriceIt-search-url]: https://github.com/aaronalayo/priceit-backend
+[PriceIt-frontend-logo]: httzs://img.shields.io/badge/PriceIt-Frontend-blue
+[PriceIt-frontend-url]: https://github.com/aaronalayo/priceit_frontend
