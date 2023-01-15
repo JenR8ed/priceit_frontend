@@ -51,7 +51,7 @@ class UserAuthService {
       itemId:itemId
     });
   }
-
+ 
   AddUserSearches(userId: string, searchWord: string) {
     return httpAuth.put(`/users/me/addSearch/${userId}`, {
       searchWord:searchWord

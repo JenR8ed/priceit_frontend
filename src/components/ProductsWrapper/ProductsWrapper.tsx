@@ -3,7 +3,14 @@ import { Fragment } from "react";
 import ProductDataService from "../../services/ProductDataService";
 import Product from "../Products/Product";
 import { ProductData } from "../../types/product";
-import { Button, TextField, Pagination } from "@mui/material/";
+import {
+  Button,
+  TextField,
+  Pagination,
+  Stack,
+  Snackbar,
+  Alert,
+} from "@mui/material/";
 import { useFormik } from "formik";
 import { searchWordValidationSchema } from "../../validationSchema";
 import { ProductDataProps } from "../../types/product";
@@ -19,7 +26,8 @@ import SearchIcon from "@mui/icons-material/Search";
 import UserAuthService from "../../services/UserAuthService";
 import { useUser } from "../../auth/useUser";
 import { useCookies } from "react-cookie";
-
+import useLocalStorage from "../../hooks/useLocalStorage";
+import { useSessionStorage } from "usehooks-ts";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
 
@@ -66,30 +74,46 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 export function ProductsWrapper(): JSX.Element {
+  //variables
   const limit: number = 20;
   let offset: number = 0;
-  const currentOffset: number = parseInt(sessionStorage.getItem("currentOffset") || "")
-  let newOffset = currentOffset;
-  sessionStorage.setItem("currentOffset", JSON.stringify(offset));
+
+  //hooks
+  const [currentOffset, setCurrentOffset] = useSessionStorage(
+    "current-offset",
+    0
+  );
+  const [actualPage, setActualPage] = useSessionStorage("actual-page", 1);
+  const data = useUser();
+  const [cookie] = useCookies(["logged_in"]);
+
+  //pagination
+  const [hiddenPagination, setHiddenPagination] = useState(true);
   const [searchWordPagination, setSearchhWordPagination] = useState<string>("");
+  // const [ lastSearch, setLastSearch] = useLocalStorage("lastSearch", searchWordPagination);
+  const [searchValue, setSearchValue] = useSessionStorage("last-search", "");
+
+  //titles
   const [hiddenFacebookTitle, setHiddenFacebookTitle] = useState<boolean>(true);
   const [hiddenEbayTitle, setHiddenEbayTitle] = useState<boolean>(true);
   const [hiddenGoogleTitle, setHiddenGoogleTitle] = useState<boolean>(true);
-  const [hiddenPagination, setHiddenPagination] = useState(true);
+
+  //page
   const [currentPage, setCurrentPage] = useState<number>(1);
+  //error
   const [hiddenError, setHiddenError] = useState<boolean>(true);
+  const [ebayError, setEbayError] = useState<string>("");
+  const [facebookError, setFacebookError] = useState<string>("");
+  const [googleError, setGoogleError] = useState<string>("");
+
+  //data
   const [ebayProducts, setEbayProducts] = useState<ProductData[] | undefined>();
-  const data = useUser();
   const [facebookProducts, setFacebookProducts] = useState<
     ProductData[] | undefined
   >();
   const [googleProducts, setGoogleProducts] = useState<
     ProductData[] | undefined
   >();
-  const [ebayError, setEbayError] = useState<string>("");
-  const [facebookError, setFacebookError] = useState<string>("");
-  const [googleError, setGoogleError] = useState<string>("");
-  const [cookie] = useCookies(["logged_in"]);
 
   const getFaceBookData = async (searchWord: string, offset: number) => {
     try {
@@ -105,13 +129,14 @@ export function ProductsWrapper(): JSX.Element {
         setHiddenError(true);
       }
     } catch (error: any) {
-      console.log(error.response.data);
+      // console.log(error.response.data);
       setHiddenFacebookTitle(false);
       setFacebookProducts([]);
       setFacebookError(error.response.data.error);
     }
   };
 
+  //get Data functions
   const getEbayData = async (
     searchWord: string,
     limit: number,
@@ -125,7 +150,7 @@ export function ProductsWrapper(): JSX.Element {
           offset
         );
       if (responseEbay.status === 200) {
-        // console.log(response.data.ebayData)
+        console.log(responseEbay);
         setEbayProducts(responseEbay.data.ebayData.itemList);
         setHiddenPagination(false);
         setHiddenEbayTitle(false);
@@ -162,6 +187,8 @@ export function ProductsWrapper(): JSX.Element {
       setHiddenPagination(true);
     }
   };
+
+  //form submission
   const formik = useFormik({
     initialValues: {
       searchWord: "",
@@ -169,15 +196,16 @@ export function ProductsWrapper(): JSX.Element {
     validationSchema: searchWordValidationSchema,
     onSubmit: async (values, { resetForm }) => {
       const searchWord: string = values.searchWord;
-      sessionStorage.setItem("search", searchWord);
+      setSearchValue(values.searchWord);
       setSearchhWordPagination(values.searchWord);
       setCurrentPage(1);
+      setActualPage(1);
 
-      if (cookie.logged_in === 'true' && searchWord !== null) {
+      if (cookie.logged_in === "true" && searchWord !== null) {
+        sessionStorage.setItem("search", searchWord);
         try {
           await UserAuthService.AddUserSearches(data.sub._id, searchWord).then(
             (response) => {
-              console.log(response);
               if (response.status === 200) {
                 console.log(response);
               }
@@ -200,31 +228,31 @@ export function ProductsWrapper(): JSX.Element {
     },
   });
 
-  function handleSearchWordChange(
-    event: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>
-  ) {
-    const word = event.target.value;
-    if (!word.length) return false;
-    if (word) {
-      setSearchhWordPagination(word);
+  //Reload data on page refresh
+  useEffect(() => {
+    console.log("searchValue", searchValue);
+    console.log("actualPage", actualPage);
+    console.log("currentPage", currentPage);
+    console.log(currentOffset);
+    if (searchValue === "") {
+      return;
+    } else {
+      console.log("useEffect function executing");
+      console.log("useffet ", searchValue);
+      setCurrentPage(actualPage);
+      if (currentPage === 1 && actualPage === 1) {
+        getFaceBookData(searchValue, currentOffset);
+        getEbayData(searchValue, limit, currentOffset);
+      } else {
+        setHiddenFacebookTitle(true);
+        getEbayData(searchValue, limit, currentOffset);
+
+        // getGoogleData(searchValue, currentOffset)
+      }
     }
-  }
+  }, []);
 
-  // useEffect(() => {
-  //   const searchWord: string | null = sessionStorage.getItem(
-  //     "search"
-  //   ) as string;
-    
-    
-  //   if(searchWord !== null){
-  //     getFaceBookData(searchWord, newOffset)
-  //     getEbayData(searchWord, limit, newOffset)
-  //     // getGoogleData(searchWord, offset)
-  //   }
-
-    
-  // }, []);
-
+  //handle keys form
   const handleKeyDown = (
     event: React.KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -233,22 +261,28 @@ export function ProductsWrapper(): JSX.Element {
       //@ts-ignore
       formik.handleChange;
   };
+
+  //handle Pagination
   const handlePageChange = (
     event: React.ChangeEvent<unknown>,
     page: number
   ) => {
+    console.log("handle function executing");
+    setActualPage(page);
     setCurrentPage(page);
-    let offset: number = (page - 1) * limit;
-    sessionStorage.setItem("currentOffset", JSON.stringify(offset));
 
+    let offset: number = (page - 1) * limit;
+    setCurrentOffset(offset);
+    console.log("handle search pagina ", searchWordPagination);
     try {
       ProductDataService.findEbayProductsBySearchWord(
-        searchWordPagination,
+        searchValue,
         limit,
         offset
       ).then((response) => {
         if (page === 1) {
           setHiddenFacebookTitle(false);
+          getFaceBookData(searchValue, currentOffset);
         } else {
           setHiddenFacebookTitle(true);
         }
@@ -259,9 +293,45 @@ export function ProductsWrapper(): JSX.Element {
     } catch (error) {
       console.log(error);
     }
+    // try {
+    //   ProductDataService.findGoogleProductsBySearchWord(
+    //     searchWordPagination,
+    //     offset
+    //   ).then((response) => {
+    //     setGoogleProducts(response.data.googleData.itemList);
+    //   });
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
+
   return (
     <Fragment>
+      {/* <div className="container_signup">
+        <Stack spacing={2} sx={{ maxWidth: 200 }}>
+          <Snackbar
+            open={openError}
+            autoHideDuration={3000}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={handleClose}
+            sx={{ width: "20%" }}
+          >
+            <Alert severity="error" sx={{ width: "100%" }}>
+              {errorMessage}
+            </Alert>
+          </Snackbar>
+          <Snackbar
+            open={openSuccess}
+            autoHideDuration={5000}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            onClose={handleCloseSuccess}
+          >
+            <Alert severity="success" sx={{ width: "100%" }}>
+              {successMessage}
+            </Alert>
+          </Snackbar>
+        </Stack>
+      </div> */}
       <div className="container">
         <Box sx={{ flexGrow: 1 }} className="navbar">
           <AppBar>

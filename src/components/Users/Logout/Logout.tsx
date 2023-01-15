@@ -5,6 +5,7 @@ export function Logout() {
   const [cookie, setCookie, removeCookie] = useCookies(["logged_in"]);
   function handleLogout() {
     removeCookie("logged_in");
+    sessionStorage.clear();
     return false;
   }
   return (

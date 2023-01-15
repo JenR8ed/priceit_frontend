@@ -21,9 +21,10 @@ import Product from "../Products/Product";
 import { useEffect, useState } from "react";
 import UserAuthService from "../../services/UserAuthService";
 import { useUser } from "../../auth/useUser";
+import { useNavigate } from "react-router-dom";
 export function Profile() {
   const data = useUser();
-
+  const navigate = useNavigate();
   const [favoriteProducts, setFavoriteProducts] = useState<
     ProductData[] | undefined
   >([]);
@@ -58,31 +59,48 @@ export function Profile() {
       console.log(error);
     }
   };
-  const DeleteUserSearchProfile = async (searchWord:string) => {
+  const DeleteUserSearchProfile = async (searchWord: string) => {
     try {
-      await UserAuthService.DeleteUserSearches(data.sub._id, searchWord).then((response) => {
-        console.log(response);
-        if (response.status === 200) {
+      await UserAuthService.DeleteUserSearches(data.sub._id, searchWord).then(
+        (response) => {
           console.log(response);
-          setSuccessMessage(response.data.message);
-          setOpenSuccess(true);
+          if (response.status === 200) {
+            console.log(response);
+            setSuccessMessage(response.data.message);
+            setOpenSuccess(true);
+          }
         }
-      });
+      );
     } catch (error) {
       console.log(error);
     }
   };
-  const handleClick = () => {
-    console.info("You clicked the Chip.");
+  function gotoHome() {
+    navigate("/");
+  }
+  const handleClick = (s: string) => {
+    sessionStorage.setItem("searchFromProfile", s);
+    gotoHome();
   };
 
+  const handleDelete = (e: React.SyntheticEvent, search: string) => {
+    e.preventDefault();
+    DeleteUserSearchProfile(search);
+    // var array:string[] | undefined = [...searches]; // make a separate copy of the array
+  // var index = array.indexOf(e.target.value)
+  // if (index !== -1) {
+  //   array.splice(index, 1);
+  //   this.setState({people: array});
+  // }
+    setSuccessMessage("Search deleted!");
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
 
-  const handleDelete = (s:string) => {
-   
-    DeleteUserSearchProfile(s)
-    console.info("You clicked the delete icon.", s);
-    window.location.reload();
   };
+  useEffect(()=>{
+
+  },[searches])
   const handleClose = (
     event: React.SyntheticEvent | Event,
     reason?: string
@@ -103,10 +121,10 @@ export function Profile() {
   };
   return (
     <>
-    <Stack spacing={2} sx={{ maxWidth: 600 }}>
+      <Stack spacing={2} sx={{ maxWidth: 600 }}>
         <Snackbar
           open={openError}
-          autoHideDuration={5000}
+          autoHideDuration={1000}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           onClose={handleClose}
           sx={{ width: "20%" }}
@@ -117,7 +135,7 @@ export function Profile() {
         </Snackbar>
         <Snackbar
           open={openSuccess}
-          autoHideDuration={5000}
+          autoHideDuration={1000}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
           onClose={handleCloseSuccess}
         >
@@ -126,23 +144,58 @@ export function Profile() {
           </Alert>
         </Snackbar>
       </Stack>
-      <h4>Your recent searches :</h4>
-      <div className="chips_container">
-        {searches?.map((s, idx) => (
-          <Stack direction="row" spacing={1} key={idx} sx={{display:"inline-flex"}}>
+
+      <Card elevation={8} sx={{ maxWidth: 245, padding: 1 , position:"absolute", top:80}}>
+        <CardContent
+          sx={{ maxHeight: 245, display: "block", marginBlock: 10, padding: 2 }}
+        >
+          <Typography color="#64b5f6" sx={{ fontSize: 30, display: "block" }}>
+            {data.sub.firstName} {data.sub.lastName}
+          </Typography>
+          <Typography color="#64b5f6" sx={{ fontSize: 20 }}>
+            {data.sub.email}
+          </Typography>
+        </CardContent>
+      </Card>
+
+
+      {/* <div className="chips_container"> */}
+      {/* <Card elevation={2} sx={{maxWidth:500, padding: 1, marginTop:20, marginBottom:10, marginLeft:"auto", marginRight:"auto"}}> */}
+      <Typography color="#64b5f6" sx={{ fontSize: 30, display: "block" }}>
+        Recent searches :
+      </Typography>
+      {searches?.map((s, idx) => (
+          <Stack
+          
+            direction="row"
+            spacing={1}
+            key={idx}
+            sx={{ display: "inline-flex" }}
+          >
             <Chip
               label={s}
               variant="outlined"
               color="info"
-              onClick={handleClick}
-              onDelete={(e) => handleDelete(s)}
-              sx={{margin:1}}
+              onClick={(e) => handleClick(s)}
+              onDelete={(e) => handleDelete(e, s)}
+              sx={{ margin: 1 }}
             />
           </Stack>
         ))}
-      </div>
-      <h4>Your favorites products :</h4>
-      <Product title="Your Favorites Products" productList={favoriteProducts}></Product>
+      {/* </Card> */}
+        
+      {/* </div> */}
+      <Box sx={{ flexGrow: 1 }} className="navbar">
+      {/* <Typography color="#64b5f6" sx={{ fontSize: 30, display:"inline-flex" }}>
+        Favorites :
+      </Typography> */}
+      <Product
+        title="Favorite Products"
+        // hiddenTitle={true}
+        productList={favoriteProducts}
+      ></Product>
+      </Box>
+     
     </>
   );
 }

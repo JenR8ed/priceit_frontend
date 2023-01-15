@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useUser } from "./useUser";
 import { useCookies } from "react-cookie";
+import { useEffect } from "react";
 
 
 const useAuth = (data: any, cookie: { logged_in?: any }) => {
@@ -15,6 +16,7 @@ const ProtectedRoute = (props: any) => {
   const [cookie, ] = useCookies(["logged_in"]);
   const data = useUser();
   const auth = useAuth(data, cookie);
+  
   return auth ? <Outlet context={data.sub} /> : <Navigate to="/" />;
 };
 

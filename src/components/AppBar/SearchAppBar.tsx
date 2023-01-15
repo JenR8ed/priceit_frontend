@@ -26,10 +26,11 @@ export function SearchAppBar() {
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+  const navigate = useNavigate();
   function gotoHome() {
     navigate("/");
   }
-  const navigate = useNavigate();
+  
   function gotoProfile() {
     navigate("/profile");
   }

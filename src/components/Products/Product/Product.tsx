@@ -13,9 +13,10 @@ import UserAuthService from "../../../services/UserAuthService";
 import { useUser } from "../../../auth/useUser";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { User } from "../../../types";
-import { Alert, Snackbar, Stack } from "@mui/material";
+import { Alert, Grid, Paper, Snackbar, Stack, styled } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
+import { textAlign } from "@mui/system";
 
 export function Product({
   title,
@@ -42,6 +43,7 @@ export function Product({
   const [errorMessage, setErrorMessage] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [itemToDelete, SetItemToDelete] = useState<string>("");
   const [cookie] = useCookies(["logged_in"]);
   const pathName = window.location.pathname;
   function handleFavorites(
@@ -61,9 +63,9 @@ export function Product({
       } else {
         setActiveIndex(-1);
       }
-    }else {
+    } else {
       setErrorMessage("Login or Register");
-      setOpenError(true)
+      setOpenError(true);
     }
   }
 
@@ -80,6 +82,11 @@ export function Product({
       console.log(error);
     }
   };
+
+  const handleDelete = (e: React.SyntheticEvent, itemId: string) => {
+    e.preventDefault()
+    DeleteUserItemsProfile(itemId);
+  }
 
   const DeleteUserItemsProfile = async (itemId: string) => {
     try {
@@ -124,7 +131,7 @@ export function Product({
         <Stack spacing={2} sx={{ maxWidth: 200 }}>
           <Snackbar
             open={openError}
-            autoHideDuration={3000}
+            autoHideDuration={1000}
             anchorOrigin={{ vertical: "top", horizontal: "center" }}
             onClose={handleClose}
             sx={{ width: "20%" }}
@@ -135,7 +142,7 @@ export function Product({
           </Snackbar>
           <Snackbar
             open={openSuccess}
-            autoHideDuration={5000}
+            autoHideDuration={1000}
             anchorOrigin={{ vertical: "top", horizontal: "center" }}
             onClose={handleCloseSuccess}
           >
@@ -146,62 +153,80 @@ export function Product({
         </Stack>
       </div>
       <div className="product_container">
-        <div className="product_header" hidden={hiddenTitle}>
-          <h1>{title}</h1>
+
+      {error && (
+        <div className="error" hidden={hiddenError}>
+          <h1>{error}</h1>
         </div>
-        {error && (
-          <div className="error" hidden={hiddenError}>
-            <h1>{error}</h1>
+      )}
+      {/* <Grid
+        container
+        margin={{ top: 50 }}
+        spacing={1}
+        columns={{ xs: 6, sm: 20, md: 16 }}
+        sx={{ margin: 10 }}
+      > */}
+        {/* <Grid item xs={2} sm={4} md={4} hidden={hiddenTitle}> */}
+          <div className="product_header" hidden={hiddenTitle}>
+          {/* <Typography color="#64b5f6" sx={{ fontSize: 30, display:"flex", padding:10}}> */}
+            <h1>{title}</h1>
+          {/* </Typography> */}
           </div>
-        )}
+        {/* </Grid> */}
+
         {productList?.map((p, idx) => (
-          <Card sx={{ maxWidth: 245 }} key={idx}>
-            <a href={p.itemRef} target="_blank" rel="noreferrer">
-              <CardMedia
-                className="zoom"
-                component="img"
-                height="150"
-                image={p.image.uri}
-                alt="Paella dish"
-              />
-            </a>
-            <CardContent sx={{ maxHeight: 30 }}>
-              <Typography color="text.secondary" sx={{ fontSize: 14 }}>
-                {p.title}
-              </Typography>
-              <Typography color="text.secondary" sx={{ fontSize: 14 }}>
-                {p.price.currency + p.price.value}
-              </Typography>
-            </CardContent>
-            <CardActions disableSpacing sx={{ bottom: 0 }}>
-              <Box sx={{ width: 500, bottom: 0, paddingTop: 5 }}>
-                {pathName === "/" ? (
-                  <Tooltip title="Add to favorites">
-                    <IconButton
-                      id={idx.toString()}
-                      aria-label="add to favorites"
-                      color={idx === activeIndex ? "info" : "default"}
-                      onClick={(e) => handleFavorites(e, p, idx)}
-                    >
-                      <FavoriteIcon />
-                    </IconButton>
-                  </Tooltip>
-                ) : (
-                  <Tooltip title="Delete from Favorites">
-                    <IconButton
-                      id={idx.toString()}
-                      aria-label="delete from favorites"
-                      color={idx === activeIndex ? "info" : "default"}
-                      onClick={(e) => DeleteUserItemsProfile(p.id)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
-                )}
-              </Box>
-            </CardActions>
-          </Card>
+          // <Grid item xs={2} sm={4} md={4} key={idx} maxWidth={2}>
+            <Card sx={{ maxWidth: 245, padding: 1 }} key={idx}>
+              <a href={p.itemRef} target="_blank" rel="noreferrer">
+                <Tooltip title="Click to visit product's page ">
+                  <CardMedia
+                    className="zoom"
+                    component="img"
+                    height="150"
+                    image={p.image.uri}
+                    alt="Paella dish"
+                  />
+                </Tooltip>
+              </a>
+              <CardContent sx={{ maxHeight: 30 }}>
+                <Typography color="text.secondary" sx={{ fontSize: 14 }}>
+                  {p.title}
+                </Typography>
+                <Typography color="text.secondary" sx={{ fontSize: 14 }}>
+                  {p.price.currency + p.price.value}
+                </Typography>
+              </CardContent>
+              <CardActions disableSpacing sx={{ bottom: 0 }}>
+                <Box sx={{ width: 500, bottom: 0, paddingTop: 5 }}>
+                  {pathName === "/" ? (
+                    <Tooltip title="Add to favorites">
+                      <IconButton
+                        id={idx.toString()}
+                        aria-label="add to favorites"
+                        color={idx === activeIndex ? "info" : "default"}
+                        onClick={(e) => handleFavorites(e, p, idx)}
+                      >
+                        <FavoriteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Delete from Favorites">
+                      <IconButton
+                        id={idx.toString()}
+                        aria-label="delete from favorites"
+                        color={idx === activeIndex ? "info" : "default"}
+                        onClick={(e) => handleDelete(e, p.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </Tooltip>
+                  )}
+                </Box>
+              </CardActions>
+            </Card>
+          // </Grid>
         ))}
+      {/* </Grid> */}
       </div>
     </>
   );

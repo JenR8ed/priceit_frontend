@@ -80,6 +80,7 @@ button:focus-visible {
   margin-top: 10%;
   background-color: #ffffff;
   display: grid;
+  
 }
 .product_container {
   align-content:center;
