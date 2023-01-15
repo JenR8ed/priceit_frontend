@@ -1,30 +1,22 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useEffect } from "react";
 import { useUser } from "./useUser";
+import { useCookies } from "react-cookie";
 
 
-const useAuth = (data: any) => {
-    const token = localStorage.getItem("access_token");
-    if (!data) {
-        return false;
-    } else if (data.sub.role === "user" && token) {
-        return true;
-    }
+const useAuth = (data: any, cookie: { logged_in?: any }) => {
+  if (!data) {
+    return false;
+  } else if (data.sub.role === "user" && cookie.logged_in) {
+    return true;
+  }
 };
 
 const ProtectedRoute = (props: any) => {
-    const data = useUser();
-    const auth = useAuth(data);
-
-    useEffect(() => {
-        const token = localStorage.getItem("access_token");
-        if (token) {
-            // Validate token and refresh if needed
-            // ...
-        }
-    }, []);
-
-    return auth ? <Outlet context={data.sub} /> : <Navigate to="/" />;
+  const [cookie, ] = useCookies(["logged_in"]);
+  const data = useUser();
+  const auth = useAuth(data, cookie);
+  return auth ? <Outlet context={data.sub} /> : <Navigate to="/" />;
 };
+
 
 export default ProtectedRoute;
