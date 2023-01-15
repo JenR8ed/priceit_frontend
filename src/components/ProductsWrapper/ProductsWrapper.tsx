@@ -91,7 +91,6 @@ export function ProductsWrapper(): JSX.Element {
   const [googleError, setGoogleError] = useState<string>("");
   const [cookie] = useCookies(["logged_in"]);
 
-
   const getFaceBookData = async (searchWord: string, offset: number) => {
     try {
       const responseFacebook =
@@ -174,7 +173,7 @@ export function ProductsWrapper(): JSX.Element {
       setSearchhWordPagination(values.searchWord);
       setCurrentPage(1);
 
-      if (searchWord !== null) {
+      if (cookie.logged_in === 'true' && searchWord !== null) {
         try {
           await UserAuthService.AddUserSearches(data.sub._id, searchWord).then(
             (response) => {
