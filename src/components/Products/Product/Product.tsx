@@ -37,19 +37,20 @@ export function Product({
   const [favoriteProducts, setFavoriteProducts] = useState<
     ProductData[] | undefined
   >([]);
-  const [activeIndex, setActiveIndex] = useState<number>(-1); 
+  const [activeIndex, setActiveIndex] = useState<number>(-1);
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [cookie] = useCookies(["logged_in"],);
+  const [cookie] = useCookies(["logged_in"]);
+  const token = localStorage.getItem("access_token");
   const pathName = window.location.pathname;
   function handleFavorites(
     e: React.SyntheticEvent,
     p: ProductData,
     index: number
   ) {
-    if (cookie.logged_in === "true") {
+    if (token != null) {
       e.preventDefault();
       if (p) {
         setActiveIndex(index);

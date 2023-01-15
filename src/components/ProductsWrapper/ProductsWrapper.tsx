@@ -174,7 +174,7 @@ export function ProductsWrapper(): JSX.Element {
       setSearchhWordPagination(values.searchWord);
       setCurrentPage(1);
 
-      if (searchWord !== null) {
+      if (cookie.logged_in === 'true' && searchWord !== null) {
         try {
           await UserAuthService.AddUserSearches(data.sub._id, searchWord).then(
             (response) => {
