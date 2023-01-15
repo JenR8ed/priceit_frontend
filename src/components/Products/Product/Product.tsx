@@ -42,15 +42,14 @@ export function Product({
   const [errorMessage, setErrorMessage] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  // const [cookie] = useCookies(["logged_in"]);
-  const token = localStorage.getItem("access_token");
+  const [cookie] = useCookies(["logged_in"]);
   const pathName = window.location.pathname;
   function handleFavorites(
     e: React.SyntheticEvent,
     p: ProductData,
     index: number
   ) {
-    if (token != null) {
+    if (cookie.logged_in === "true") {
       e.preventDefault();
       if (p) {
         setActiveIndex(index);
