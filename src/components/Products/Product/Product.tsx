@@ -37,7 +37,7 @@ export function Product({
   const [favoriteProducts, setFavoriteProducts] = useState<
     ProductData[] | undefined
   >([]);
-  const [activeIndex, setActiveIndex] = useState<number>(-1);
+  const [activeIndex, setActiveIndex] = useState<number>(-1); 
   const [openError, setOpenError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [openSuccess, setOpenSuccess] = useState(false);
