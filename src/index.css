@@ -20,7 +20,7 @@ a {
   color: #440be0;
   text-decoration: inherit;
 }
-a:hover{
+a:hover {
   color: #43dd55;
 }
 
@@ -30,14 +30,12 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
   color: #0b87e0;
-
 }
 
 button {
@@ -80,18 +78,18 @@ button:focus-visible {
   margin-top: 10%;
   background-color: #ffffff;
   display: grid;
-  
 }
 .product_container {
-  align-content:center;
+  align-content: center;
   display: grid;
-  grid-template-columns:300px 300px 300px 300px;
+  grid-template-columns: 300px 300px 300px 300px;
   gap: 20px;
   background-color: #ffffff;
-  margin-top: 10%;
+  margin-top: 5%;
+  margin-bottom: 5%;
 }
 .container_signup {
-  align-content:center;
+  align-content: center;
   display: flex;
   flex-direction: column;
   margin: auto;
@@ -101,33 +99,32 @@ button:focus-visible {
   text-align: center;
 }
 .product_header {
-
   margin: 20px;
   border: 1px solid;
   border-radius: 5px;
 }
 
 .pagination {
-  background-color:"whitesmoke";
-  width: 100%;
-  height: 320px;
-  z-index: 1100;
+  position: fixed;
+   left: 0;
+   bottom: 30;
+   width: 100%;
+   background-color: red;
+   color: rgb(141, 127, 127);
+   text-align: center;
 }
 .view_button {
   position: sticky;
-
 }
-
 
 .navbar {
   overflow: hidden;
   top: 0; /* Position the navbar at the top of the page */
-
 }
 .zoom {
   /* padding: 50px; */
   /* background-color: green; */
-  transition: transform .3s;
+  transition: transform 0.3s;
   /* width: 200px; */
   /* height: 200px; */
   /* margin: 0 auto; */
@@ -146,9 +143,10 @@ button:focus-visible {
   height: 120px;
   position: fixed;
   top: 64px;
+  overflow: hidden;
 }
 .error {
-  text-align:left;
+  text-align: left;
   width: 100%;
   max-width: 50%;
 }
@@ -160,5 +158,4 @@ button:focus-visible {
   width: fit-content;
   margin-left: auto;
   margin-right: auto;
-
 }

@@ -10,6 +10,10 @@ import {
   Stack,
   Snackbar,
   Alert,
+  BottomNavigation,
+  Paper,
+  BottomNavigationAction,
+  SvgIcon,
 } from "@mui/material/";
 import { useFormik } from "formik";
 import { searchWordValidationSchema } from "../../validationSchema";
@@ -26,8 +30,9 @@ import SearchIcon from "@mui/icons-material/Search";
 import UserAuthService from "../../services/UserAuthService";
 import { useUser } from "../../auth/useUser";
 import { useCookies } from "react-cookie";
-import useLocalStorage from "../../hooks/useLocalStorage";
 import { useSessionStorage } from "usehooks-ts";
+
+
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
 
@@ -124,6 +129,7 @@ export function ProductsWrapper(): JSX.Element {
         );
       console.log("facebook", responseFacebook);
       if (responseFacebook.status === 200) {
+        setHiddenPagination(false);
         setFacebookProducts(responseFacebook.data.facebookData.itemList);
         setHiddenFacebookTitle(false);
         setHiddenError(true);
@@ -152,7 +158,7 @@ export function ProductsWrapper(): JSX.Element {
       if (responseEbay.status === 200) {
         console.log(responseEbay);
         setEbayProducts(responseEbay.data.ebayData.itemList);
-        setHiddenPagination(false);
+        
         setHiddenEbayTitle(false);
         setHiddenError(true);
       }
@@ -195,9 +201,10 @@ export function ProductsWrapper(): JSX.Element {
     },
     validationSchema: searchWordValidationSchema,
     onSubmit: async (values, { resetForm }) => {
-      const searchWord: string = values.searchWord;
-      setSearchValue(values.searchWord);
-      setSearchhWordPagination(values.searchWord);
+      let searchWord: string = values.searchWord;
+      searchWord = searchWord.replace(/([^a-z0-9]+)/gi, '');
+      setSearchValue(searchWord);
+      setSearchhWordPagination(searchWord);
       setCurrentPage(1);
       setActualPage(1);
 
@@ -218,7 +225,7 @@ export function ProductsWrapper(): JSX.Element {
 
       getFaceBookData(searchWord, offset);
       getEbayData(searchWord, limit, offset);
-      // getGoogleData(searchWord, offset);
+      getGoogleData(searchWord, offset);
 
       // resetForm({
       //   values: {
@@ -243,11 +250,11 @@ export function ProductsWrapper(): JSX.Element {
       if (currentPage === 1 && actualPage === 1) {
         getFaceBookData(searchValue, currentOffset);
         getEbayData(searchValue, limit, currentOffset);
+        getGoogleData(searchValue, currentOffset)
       } else {
         setHiddenFacebookTitle(true);
         getEbayData(searchValue, limit, currentOffset);
-
-        // getGoogleData(searchValue, currentOffset)
+        getGoogleData(searchValue, currentOffset)
       }
     }
   }, []);
@@ -288,21 +295,21 @@ export function ProductsWrapper(): JSX.Element {
         }
 
         setEbayProducts(response.data.ebayData.itemList);
-        // setGoogleProducts(response.data.googleData);
+        
       });
     } catch (error) {
       console.log(error);
     }
-    // try {
-    //   ProductDataService.findGoogleProductsBySearchWord(
-    //     searchWordPagination,
-    //     offset
-    //   ).then((response) => {
-    //     setGoogleProducts(response.data.googleData.itemList);
-    //   });
-    // } catch (error) {
-    //   console.log(error);
-    // }
+    try {
+      ProductDataService.findGoogleProductsBySearchWord(
+        searchValue,
+        offset
+      ).then((response) => {
+        setGoogleProducts(response.data.googleData.itemList);
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -397,25 +404,37 @@ export function ProductsWrapper(): JSX.Element {
           hiddenError={hiddenError}
         ></Product>
       </div>
+      <Paper
+        sx={{ position: "fixed", bottom: 0, left: 0, right: 0 }}
+        elevation={3}
+      >
+        <BottomNavigation>
+          <Box display="flex" justifyContent="center" width="100%">
+            <Pagination
+              count={10}
+              color="primary"
+              page={currentPage}
+              onChange={handlePageChange}
+              hidden={hiddenPagination}
+              sx={{
+                zIndex: 1100,
+                position: "fixed",
+                bottom: 10,
 
-      <div className="pagination">
-        <Pagination
-          count={10}
-          color="primary"
-          page={currentPage}
-          onChange={handlePageChange}
-          hidden={hiddenPagination}
-          sx={{
-            zIndex: 1100,
-            position: "fixed",
-            bottom: 30,
-            width: "100%",
-            textAlign: "center",
-            left: 0,
-            justifyContent: "center",
-          }}
-        />
-      </div>
+                textAlign: "center",
+                // marginLeft:"auto",
+                // marginRight:"auto",
+                justifyContent: "center",
+              }}
+            />
+            
+          </Box>
+  
+          <Typography color="#757575" sx={{ padding:2, width:170,  fontSize: 16,  textAlign:"left", right:22}}>
+          © Copyright 2023
+          </Typography>
+        </BottomNavigation>
+      </Paper>
     </Fragment>
   );
 }

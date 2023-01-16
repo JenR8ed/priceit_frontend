@@ -144,8 +144,12 @@ export function Profile() {
           </Alert>
         </Snackbar>
       </Stack>
+<div className="search">
 
-      <Card elevation={8} sx={{ maxWidth: 245, padding: 1 , position:"absolute", top:80}}>
+      <Card elevation={8} sx={{ maxWidth:350, padding: 1 , position: "fixed",
+                  top: 100,
+                  zIndex: 1100,
+                  left: 50,}}>
         <CardContent
           sx={{ maxHeight: 245, display: "block", marginBlock: 10, padding: 2 }}
         >
@@ -158,11 +162,12 @@ export function Profile() {
         </CardContent>
       </Card>
 
+      </div>
 
       {/* <div className="chips_container"> */}
       {/* <Card elevation={2} sx={{maxWidth:500, padding: 1, marginTop:20, marginBottom:10, marginLeft:"auto", marginRight:"auto"}}> */}
-      <Typography color="#64b5f6" sx={{ fontSize: 30, display: "block" }}>
-        Recent searches :
+      <Typography color="#64b5f6" sx={{ fontSize: 30, display: "block", position:"relative", top:50 }}>
+        Recent searches:
       </Typography>
       {searches?.map((s, idx) => (
           <Stack
@@ -170,7 +175,7 @@ export function Profile() {
             direction="row"
             spacing={1}
             key={idx}
-            sx={{ display: "inline-flex" }}
+            sx={{ display: "inline-flex" , position:"relative", top:80, marginBottom:10, marginTop:2}}
           >
             <Chip
               label={s}
@@ -185,7 +190,7 @@ export function Profile() {
       {/* </Card> */}
         
       {/* </div> */}
-      <Box sx={{ flexGrow: 1 }} className="navbar">
+      <Box sx={{ flexGrow: 1 }} >
       {/* <Typography color="#64b5f6" sx={{ fontSize: 30, display:"inline-flex" }}>
         Favorites :
       </Typography> */}
